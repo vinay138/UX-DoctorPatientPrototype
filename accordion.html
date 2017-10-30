@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Libraries -->
+  <title>UX Prototype - Doctor-Patient Communication</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/simplex/bootstrap.min.css" rel="stylesheet" integrity="sha384-C0X5qw1DlkeV0RDunhmi4cUBUkPDTvUqzElcNWm1NI2T4k8tKMZ+wRPQOhZfSJ9N" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet"/>
+  <script src="https://use.fontawesome.com/e15c57f273.js"></script>
+  <style>
+    body {
+      color: #000
+    }
+    /* make sidebar nav vertical */ 
+    @media (min-width: 768px) {
+      .sidebar-nav .navbar .navbar-collapse {
+        padding: 0;
+        max-height: none;
+      }
+      .sidebar-nav .navbar ul {
+        float: none;
+        display: block;
+      }
+      .sidebar-nav .navbar li {
+        float: none;
+        display: block;
+      }
+      .sidebar-nav .navbar li a {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+    }
+
+    .fa-medkit {
+      color:red;
+    }
+    .active {
+      font-weight: bold;
+    }
+
+    /* Start of timeline css */
+    .timeline {
+      list-style-type: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .li {
+      transition: all 200ms ease-in;
+    }
+
+    .timestamp {
+      margin-bottom: 20px;
+      padding: 0px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 100;
+    }
+
+    .status {
+      padding: 0px 40px;
+      display: flex;
+      justify-content: center;
+      border-top: 2px solid #D6DCE0;
+      position: relative;
+      transition: all 200ms ease-in;
+    }
+    .status h4 {
+      font-weight: 600;
+    }
+    .status:before {
+      content: "";
+      width: 25px;
+      height: 25px;
+      background-color: white;
+      border-radius: 25px;
+      border: 1px solid #ddd;
+      position: absolute;
+      top: -15px;
+      left: 42%;
+      transition: all 200ms ease-in;
+    }
+
+
+    .li.complete .status:before {
+      background-color: #56a1da;
+      border: none;
+      transition: all 200ms ease-in;
+    }
+    .li.complete .status h4 {
+      color: #66DC71;
+    }
+
+    @media (min-device-width: 320px) and (max-device-width: 700px) {
+      .timeline {
+        list-style-type: none;
+        display: block;
+      }
+
+      .li {
+        transition: all 200ms ease-in;
+        display: flex;
+        width: inherit;
+      }
+
+      .timestamp {
+        width: 100px;
+      }
+
+      .status:before {
+        left: -8%;
+        top: 30%;
+        transition: all 200ms ease-in;
+      }
+    }
+
+
+    button {
+      position: absolute;
+      width: 100px;
+      min-width: 100px;
+      padding: 20px;
+      margin: 20px;
+      font-family: "Titillium Web", sans serif;
+      border: none;
+      color: white;
+      font-size: 16px;
+      text-align: center;
+    }
+
+
+    /* End of timeline css */
+
+    .content {
+      border: 1px solid transparent;
+    }
+
+    blockquote {
+      font-size:13.25px;
+    }
+    .active {
+      background-color:rgba(157, 177, 152, 0.27);
+    }
+    #results-cont {
+      display: none;
+    }
+    #diagnosis-cont {
+      display: none;
+    }
+    #next-cont {
+      display: none;
+    }
+    .bar {
+      position:absolute;
+      margin-top:-20px;
+      z-index:1;
+      font-size:12px;
+    }
+
+    .text {
+      float: left;
+    }
+
+    .line {
+      float: right;
+      background: #000;
+      height:50px;
+      width:1px;
+      margin-left: 5px;
+    }
+
+    .disabled{
+      color:#D6DCE0;
+    }
+
+    .lab {
+      font-size: 14px;
+      padding-bottom: 30px;
+    }
+    .lab img{
+      display: block;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .vertical-align {
+      display: flex;
+      align-items: center;
+    }
+    .panel-title {
+      font-weight: bold;
+    }
+    .panel-default>.panel-heading {
+      background: #fff;
+    }
+
+    .accordion-toggle:after {
+      font-family: 'FontAwesome';
+      content: "\f078";    
+      float: right;
+    }
+    .accordion-opened .accordion-toggle:after {    
+      content: "\f054";    
+    }
+  </style>
+
+
+
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style = "font-family: 'Raleway', sans-serif;"> <i class="fa fa-medkit" aria-hidden="true"></i>
+         Care Portal
+       </a>
+     </div>
+   </div>
+ </nav>
+ <ul class="timeline" id="timeline">
+  <li class="li complete" style="margin-top: 37px;"><i class="fa fa-arrow-left fa-6" aria-hidden="true"></i></li>
+  <li class="li" id = "hid" style="display: none;">
+    <div class="timestamp">
+      <span class="date">01/11/2017<span>
+      </span></span></div>
+      <div id = "first-tl" class="status"> 
+
+      </div>
+    </li>
+    <li class="li">
+      <div class="timestamp">
+        <span class="date">02/15/2017<span>
+        </span></span></div>
+        <div class="status"> 
+
+        </div>
+      </li>
+      <li class="li">
+        <div class="timestamp">
+          <span class="date">03/03/2017<span>
+          </span></span></div>
+          <div class="status">
+          </div>
+        </li>
+        <li class="li">
+          <div class="timestamp">
+            <span class="date">04/15/2017<span>
+            </span></span></div>
+            <div class="status">
+            </div>
+          </li>
+          <li class="li complete" id = "last">
+            <div class="timestamp">
+              <span class="date">05/02/2017<span>
+              </span></span></div>
+              <div class="status" id = "last-tl">
+              </div>
+            </li>
+            <li class="li complete disabled" style="margin-top: 37px;"><i class="fa fa-arrow-right fa-6" aria-hidden="true"></i></li>
+          </ul>
+          <br/>
+          <div class="container">
+            <div class="row">
+
+
+
+              <div id = "content-area" class="pagination-centered">
+                <div class="panel-group">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area" href="#summary">Summary</a>
+                      </h4>
+                    </div>
+                    <div id="summary" class="panel-collapse collapse in">
+                      <div class="panel-body">
+
+                        <div class="col-sm-9" id = "summary-cont" >
+                          <div class="row date-app">
+                          <h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>
+                          </div>
+
+                          <div class="row">
+                            <h5><i class="fa fa-sticky-note-o" aria-hidden="true"></i> Purpose of Visit</h5>
+                            <blockquote><p>Symptoms: fatique, dizziness</p></blockquote>
+                          </div>
+
+                          <div class="row">
+                            <h5><i class="fa fa-comment-o" aria-hidden="true"></i> Doctor's notes </h5>
+                            <p><i class="fa fa-user-md" aria-hidden="true"></i> Doctor John Smith</p>
+                            <blockquote>
+                              <p>Your symptoms are consistent with anemia. Anemia is a common condition caused by a lower than normal amount of red blood cells. We will run tests for underlying conditions, but considering you have no other symptoms this is likely caused by iron deficiency. There are some strategies you may consider to help improve your red blood cell count. These include:</p>
+                              <ul>
+                                <li>Eat foods high in iron, including dark green leafy vegetables.</li>
+                                <li>Take a over-the-counter iron supplement</li>
+                                <li>Take a B-12 supplement</li>
+                              </ul>
+                              <p>These changes should improve your red blood cell count, which we will test an your next appointment.</p>
+                              <p>Please don't hestitate to message me if you have any questions.</p>
+                            </blockquote>
+                          </div>
+
+                          <div class="row">
+                            <h5><i class="fa fa-comment-o" aria-hidden="true"></i> My Notes </h5>
+                            <textarea style="width:100%; height:100px" value="-Remember to not eat grapefruit.\n-Something else">- Anemia means I have a lower amount of red blood cells than usual. &#13;&#10;- It is treatable! I need to start taking supplements and eat healthier. &#13;&#10;- It might lead to fainting, so try to stay hydrated and avoid standing for long periods of time.&#13;&#10;&#13;&#10; Next time, remember to ask about supplements.</textarea>
+                          </div>
+
+                          <div class="row">
+                            <h5><i class="fa fa-question-circle-o" aria-hidden="true"></i> My Questions</h5>
+                            <p><b> Is it okay for me to drink?</b> 
+                              <i style="color:green" class="fa fa-check-circle" data-toggle="tooltip" title="Doctor confirmed!"></i> <br/>
+                              <i>Not too much - heavy drinking may influence red blood cell production.</i> </p>
+
+                              <p><b> Can I still exercise?</b> 
+                                <i style="color:green" class="fa fa-check-circle" data-toggle="tooltip" title="Doctor confirmed!"></i> <br/>
+                                <i>I may get tired easier because of anemia, but as long as I stay aware of my limits I should continue to exercise.</i> </p>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area" href="#diagnosis">Diagnosis</a>
+                          </h4>
+                        </div>
+                        <div id="diagnosis" class="panel-collapse collapse">
+                          <div class="panel-body">
+                           <div class="col-sm-9 content">
+                            <div class="row date-app">
+                              <h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>
+                            </div>
+                            <hr/>
+                            <div class="row">
+                             <i class="fa fa-sticky-note-o" aria-hidden="true"></i> Anemia <br/> <br/>
+                             <blockquote>
+                              <p>This is a condition marked by a deficiency of red blood cells or of hemoglobin in the blood, resulting in pallor and weariness.</p>
+                            </blockquote>
+                          </div>
+                          <hr/>
+                          <div class="row">
+                           <i class="fa fa-question-circle-o" aria-hidden="true"></i> FAQ
+                           <p><b> What are the symptoms of Anemia?</b><br/>
+                             <i>Easy fatigue and loss of energy. Unusually rapid heart beat, particularly with exercise. Shortness of breath and headache, particularly with exercise. Difficulty concentrating and Dizziness</i> </p>
+                             <p><b> What is the cause of Anemia? </b><br/>
+                               <i>Deficiency of iron can cause Anemia. It can also be caused by deficiency of vitamin B12. </i> </p>
+
+                               <p><b> What is the normal level of iron in your blood?</b><br/>
+                                 <i>The normal hemoglobin range is generally defined as 13.5 to 17.5 grams (g) of hemoglobin per deciliter (dL) of blood for men and 12.0 to 15.5 g/dL for women. The normal ranges for children vary depending on the child's age and sex. </i></p>
+                               </div>
+                               <hr/>
+                               <div class="row">
+                                 <a href="https://counseling.dasa.ncsu.edu/">Support Group And Counseling</a>
+                               </div>
+                               <hr/>
+                               <div class="row">
+                                 <a href="https://en.wikipedia.org/wiki/Anemia">More Information</a>
+                               </div>
+                               <hr/>
+                             </div>
+                           </div></div></div>
+                           <div class="panel panel-default">
+                            <div class="panel-heading">
+                              <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area" href="#lab-results">Lab Results</a>
+                              </h4>
+                            </div>
+                            <div id="lab-results" class="panel-collapse collapse">
+                              <div class="panel-body">
+                                <div class="col-sm-9">
+                                  <div class="row date-app">
+                                   <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+                                 </div>
+                                 <hr/>
+                                 <div class="row">
+                                  <i class="fa fa-sticky-note-o" aria-hidden="true"></i> Doctor's Summary <br/> <br/>
+                                  <blockquote>
+                                    <p>Consistent with your sympoms, these labs indicate that you have Anemia. At your next visit we will try to determine the cause.</p>
+                                    <p><i class="fa fa-check-circle" style="color: green"></i> All labs have been reviewed by Dr. Smith.</p>
+                                  </blockquote>
+                                </div>
+                                <hr/>
+                                <div class="row">
+                                 <i class="fa fa-file-o" aria-hidden="true"></i> Lab Results <br/> <br/>
+
+                                 <div class = "lab">
+                                  <div class="row vertical-align">
+                                    <div class="col-sm-2">
+                                      RBC Count
+                                    </div>
+                                    <div class="col-sm-9">
+                                      <img src = "./images/rbccount.png" />
+
+                                      <div class="row" style="text-align: center;"><div class="col-sm-12">
+                                        <a style="padding:5px; color:navy;" data-toggle="collapse" data-target="#learnmore1">Learn more</a>
+                                      </div></div>
+                                      <div id="learnmore1" class="collapse">
+                                        <p>An RBC count is a blood test that measures how many red blood cells (RBCs) you have. </p>
+                                        <p>RBCs contain hemoglobin, which carries oxygen. How much oxygen your body tissues get depends on how many RBCs you have and how well they work.</p>
+                                      </div>
+
+                                    </div>
+                                    <div class="col-sm-1">
+                                      <a href="#"><i style="color: black" class="graph fa fa-line-chart" aria-hidden="true"></i></a>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class = "lab">
+                                  <div class="row vertical-align">
+                                    <div class="col-sm-2">
+                                      Hemoglobin
+                                    </div>
+                                    <div class="col-sm-9">
+                                      <img src = "./images/hemoglobin.png" />
+
+                                      <div class="row" style="text-align: center;"><div class="col-sm-12">
+                                        <a style="padding:5px; color:navy;" data-toggle="collapse" data-target="#learnmore2">Learn more</a>
+                                      </div></div>
+                                      <div id="learnmore2" class="collapse">
+                                        <p>Hemoglobin (Hb or Hgb) is a protein in red blood cells that carries oxygen throughout the body.</p>
+                                        <p>In many cases, a low hemoglobin count is only slightly lower than normal and doesn't affect how you feel. If it gets more severe and causes symptoms, your low hemoglobin count may indicate you have anemia.</p>
+                                      </div>
+
+                                    </div>
+                                    <div class="col-sm-1">
+                                      <a href="#"><i style="color: black" class="graph fa fa-line-chart" aria-hidden="true"></i></a>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class = "lab">
+                                  <div class="row vertical-align">
+                                    <div class="col-sm-2">
+                                      Hematocrit
+                                    </div>
+                                    <div class="col-sm-9">
+                                      <img src = "./images/Hematocrit.png" />
+
+                                      <div class="row" style="text-align: center;"><div class="col-sm-12">
+                                        <a style="padding:5px; color:navy;" data-toggle="collapse" data-target="#learnmore3">Learn more</a>
+                                      </div></div>
+                                      <div id="learnmore3" class="collapse">
+                                        <p>Your hematocrit is the volume of red blood cells in your body. A hematocrit test measures the ratio of RBCs in your blood.</p>
+                                        <p>A low hematocrit means the percentage of red blood cells is below the lower limits of normal.</p>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                      <a href="#"><i style="color: black" class="graph fa fa-line-chart" aria-hidden="true"></i></a>
+                                    </div>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div></div></div>
+                          <div class="panel panel-default">
+                            <div class="panel-heading">
+                              <h4 class="panel-title">
+                                <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area" href="#next-steps">Next Steps</a>
+                              </h4>
+                            </div>
+                            <div id="next-steps" class="panel-collapse collapse">
+                              <div class="panel-body">
+                                <div class="col-sm-9">
+                                  <div class="row date-app">
+                                   <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+                                 </div>
+                                 <hr/>
+                                 <div class="row">
+                                  <form class="form-horizontal">
+                                    <fieldset>
+
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox"> Schedule next appointment
+                                        </label>
+                                      </div>
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox"> Pickup medicine
+                                        </label>
+                                      </div>
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox"> Read lab result
+                                        </label>
+                                      </div>
+                                      <div class="checkbox">
+                                        <label>
+                                          <input type="checkbox"> Ask questions
+                                        </label>
+                                      </div>
+                                    </fieldset>
+                                  </form>
+                                </div>
+                              </div>
+                            </div></div></div>
+
+                            <div class="panel panel-default">
+                              <div class="panel-heading">
+                                <h4 class="panel-title">
+                                  <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area" href="#medication">Medication</a>
+                                </h4>
+                              </div>
+                              <div id="medication" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                 <div class="col-sm-9">
+                                  <div class="row date-app">
+                                   <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+                                 </div>
+                                 <hr/>
+                                 <div class="row">
+                                  <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th>#</th>
+                                        <th>Medicine Name</th>
+                                        <th>Make of medicine</th>
+                                        <th>Type</th>
+                                        <th>Frequency</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <th scope="row">1</th>
+                                        <td>benzonatate</td>
+                                        <td>pfizer</td>
+                                        <td>OTC</td>
+                                        <td>3 times in a day</td>
+                                      </tr>
+                                      <tr>
+                                        <th scope="row">2</th>
+                                        <td>diphenhydramine</td>
+                                        <td>amgen</td>
+                                        <td>Rx/ OTC</td>
+                                        <td>Lunch time</td>
+                                      </tr>
+                                      <tr>
+                                        <th scope="row">3</th>
+                                        <td>Hydromet</td>
+                                        <td>roche</td>
+                                        <td>OTC</td>
+                                        <td>Before sleep</td>
+                                      </tr>
+                                      <tr>
+                                        <th scope="row">3</th>
+                                        <td>Tylenol-Codeine</td>
+                                        <td>pfizer</td>
+                                        <td>Rx/ OTC</td>
+                                        <td>2 times in a day</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div></div></div>
+                          </div>
+                        </div>
+
+                        <div class="modal fade" id="graph" role="dialog">
+                          <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">History - Result</h4>
+                              </div>
+                              <div class="modal-body">
+                                <img src="http://www.falconprogrammer.com/wp-content/uploads/2013/12/LineGraph.png"/>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                      <script type="text/javascript">
+
+                        $('.fa-arrow-left').click(function() {
+                          $('#last').hide();
+                          $('#hid').show();
+                          $('.fa-arrow-left').parent().addClass('disabled');
+                          $('.fa-arrow-right').parent().removeClass('disabled');
+                        });
+
+                        $('.fa-arrow-right').click(function() {
+                          $('.fa-arrow-left').parent().removeClass('disabled');
+                          $('#hid').hide();
+                          $('#last').show();
+                          $('.fa-arrow-right').parent().addClass('disabled');
+                        });
+
+                        $('#first-tl').click(function() {
+                          $('#content-area').fadeOut();
+                          $('#content-area').fadeIn();
+                          $('#diagnosis-cont').hide();
+                          $("#diagnosis").parent().removeClass("active");
+                          $('#results-cont').hide();
+                          $("#results").parent().removeClass("active");
+                          $('#next-cont').hide();
+                          $("#next").parent().removeClass("active");
+
+                          $('#summary-cont').fadeIn("slow");
+                          $('.date-app').html('<h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 01/11/2017</h4>');
+                          $('#last-tl').parent().removeClass('complete');
+                          $('#first-tl').parent().addClass('complete');
+                        });
+
+                        $('#last-tl').click(function() {
+                          $('#content-area').fadeOut();
+                          $('#content-area').fadeIn();
+                          $('#results-cont').hide();
+                          $("#results").parent().removeClass("active");
+                          $('#diagnosis-cont').hide();
+                          $("#diagnosis").parent().removeClass("active");
+                          $('#next-cont').hide();
+                          $("#next").parent().removeClass("active");
+
+                          $('#summary-cont').fadeIn("slow");
+                          $('.date-app').html('<h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>');
+                          $('#last-tl').parent().addClass('complete');
+                          $('#first-tl').parent().removeClass('complete');
+                        });
+
+                        $('.graph').click(function() {
+                          $('#graph').modal('show');
+                        });
+
+
+
+                      </script>
+                    </body>
+                    </html>

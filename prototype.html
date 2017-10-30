@@ -1,0 +1,1266 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Libraries -->
+  <title>UX Prototype - Doctor-Patient Communication</title>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/simplex/bootstrap.min.css" rel="stylesheet" integrity="sha384-C0X5qw1DlkeV0RDunhmi4cUBUkPDTvUqzElcNWm1NI2T4k8tKMZ+wRPQOhZfSJ9N" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Karla" rel="stylesheet"/>
+  <script src="https://use.fontawesome.com/e15c57f273.js"></script>
+  <style>
+    body {
+      color: #000;
+      font-family: 'Karla';
+    }
+    /* make sidebar nav vertical */ 
+    @media (min-width: 768px) {
+      .sidebar-nav .navbar .navbar-collapse {
+        padding: 0;
+        max-height: none;
+      }
+      .sidebar-nav .navbar ul {
+        float: none;
+        display: block;
+      }
+      .sidebar-nav .navbar li {
+        float: none;
+        display: block;
+      }
+      .sidebar-nav .navbar li a {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+    }
+
+    .fa-medkit {
+      color:red;
+    }
+    .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default .navbar-nav>.active>a:focus {
+      color: #56a1da;
+      font-weight: bold;
+    }
+
+    /* Start of timeline css */
+    .timeline {
+      list-style-type: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .li {
+      transition: all 200ms ease-in;
+    }
+
+    .timestamp {
+      margin-bottom: 20px;
+      padding: 0px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 100;
+    }
+
+    .status {
+      padding: 0px 40px;
+      display: flex;
+      justify-content: center;
+      border-top: 2px solid #D6DCE0;
+      position: relative;
+      transition: all 200ms ease-in;
+    }
+    .status h4 {
+      font-weight: 600;
+    }
+    .status:before {
+      content: "";
+      width: 25px;
+      height: 25px;
+      background-color: white;
+      border-radius: 25px;
+      border: 1px solid #ddd;
+      position: absolute;
+      top: -15px;
+      left: 42%;
+      transition: all 200ms ease-in;
+    }
+	.fixmenu{
+	   top: 40%
+       left: 20;
+       position: fixed;
+       z-index: 3000;
+	   display: block;
+	   width: 25%;
+	}
+
+    .li.complete .status:before {
+      background-color: #56a1da;
+      border: none;
+      transition: all 200ms ease-in;
+    }
+    .li.complete .status h4 {
+      color: #66DC71;
+    }
+
+    @media (min-device-width: 320px) and (max-device-width: 700px) {
+      .timeline {
+        list-style-type: none;
+        display: block;
+      }
+
+      .li {
+        transition: all 200ms ease-in;
+        display: flex;
+        width: inherit;
+      }
+
+      .timestamp {
+        width: 100px;
+      }
+
+      .status:before {
+        left: -8%;
+        top: 30%;
+        transition: all 200ms ease-in;
+      }
+    }
+
+
+    button {
+      position: absolute;
+      width: 100px;
+      min-width: 100px;
+      padding: 20px;
+      margin: 20px;
+      font-family: "Titillium Web", sans serif;
+      border: none;
+      color: white;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .badge {
+      background: #56a1da;
+    }
+
+    /* End of timeline css */
+
+    .content {
+      border: 1px solid transparent;
+    }
+
+    .active {
+      background-color:rgba(157, 177, 152, 0.27);
+    }
+    #results-cont {
+      display: none;
+    }
+    #diagnosis-cont {
+      display: none;
+    }
+    #next-cont {
+      display: none;
+    }
+    #medication-cont{
+     display: none;	  
+   }
+   .bar {
+    position:absolute;
+    margin-top:-20px;
+    z-index:1;
+    font-size:12px;
+  }
+
+  .text {
+    float: left;
+  }
+
+  .line {
+    float: right;
+    background: #000;
+    height:50px;
+    width:1px;
+    margin-left: 5px;
+  }
+
+  .disabled{
+    color:#D6DCE0;
+  }
+
+  .lab {
+    font-size: 14px;
+    padding-bottom: 30px;
+  }
+  .lab img{
+    display: block;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .vertical-align {
+    display: flex;
+    align-items: center;
+  }
+  h5 {
+    font-size: 14px;
+  }
+  a {
+    color: #2a5db0;
+  }
+  a:hover, a:focus {
+    color: #3a5da0;
+  }
+  blockquote {
+    font-size: 14px;
+  }
+
+  /*new code*/
+  .panel-title {
+    font-weight: bold;
+  }
+  .panel-default>.panel-heading {
+    background: #fff;
+  }
+
+  
+
+  /*Checkbox https://github.com/flatlogic/awesome-bootstrap-checkbox*/
+  .checkbox {
+    padding-left: 20px;
+  }
+  .checkbox label {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    padding-left: 5px;
+  }
+  .checkbox label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+  }
+  .checkbox label::after {
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    margin-left: -20px;
+    padding-left: 3px;
+    padding-top: 1px;
+    font-size: 11px;
+    color: #555555;
+  }
+  .checkbox input[type="checkbox"],
+  .checkbox input[type="radio"] {
+    opacity: 0;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .checkbox input[type="checkbox"]:focus + label::before,
+  .checkbox input[type="radio"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+  .checkbox input[type="checkbox"]:checked + label::after,
+  .checkbox input[type="radio"]:checked + label::after {
+    font-family: "FontAwesome";
+    content: "\f00c";
+  }
+  .checkbox input[type="checkbox"]:indeterminate + label::after,
+  .checkbox input[type="radio"]:indeterminate + label::after {
+    display: block;
+    content: "";
+    width: 10px;
+    height: 3px;
+    background-color: #555555;
+    border-radius: 2px;
+    margin-left: -16.5px;
+    margin-top: 7px;
+  }
+  .checkbox input[type="checkbox"]:disabled,
+  .checkbox input[type="radio"]:disabled {
+    cursor: not-allowed;
+  }
+  .checkbox input[type="checkbox"]:disabled + label,
+  .checkbox input[type="radio"]:disabled + label {
+    opacity: 0.65;
+  }
+  .checkbox input[type="checkbox"]:disabled + label::before,
+  .checkbox input[type="radio"]:disabled + label::before {
+    background-color: #eeeeee;
+    cursor: not-allowed;
+  }
+  .checkbox.checkbox-circle label::before {
+    border-radius: 50%;
+  }
+  .checkbox.checkbox-inline {
+    margin-top: 0;
+  }
+
+  .checkbox-primary input[type="checkbox"]:checked + label::before,
+  .checkbox-primary input[type="radio"]:checked + label::before {
+    background-color: #337ab7;
+    border-color: #337ab7;
+  }
+  .checkbox-primary input[type="checkbox"]:checked + label::after,
+  .checkbox-primary input[type="radio"]:checked + label::after {
+    color: #fff;
+  }
+
+  .checkbox-danger input[type="checkbox"]:checked + label::before,
+  .checkbox-danger input[type="radio"]:checked + label::before {
+    background-color: #d9534f;
+    border-color: #d9534f;
+  }
+  .checkbox-danger input[type="checkbox"]:checked + label::after,
+  .checkbox-danger input[type="radio"]:checked + label::after {
+    color: #fff;
+  }
+
+  .checkbox-info input[type="checkbox"]:checked + label::before,
+  .checkbox-info input[type="radio"]:checked + label::before {
+    background-color: #5bc0de;
+    border-color: #5bc0de;
+  }
+  .checkbox-info input[type="checkbox"]:checked + label::after,
+  .checkbox-info input[type="radio"]:checked + label::after {
+    color: #fff;
+  }
+
+  .checkbox-warning input[type="checkbox"]:checked + label::before,
+  .checkbox-warning input[type="radio"]:checked + label::before {
+    background-color: #f0ad4e;
+    border-color: #f0ad4e;
+  }
+  .checkbox-warning input[type="checkbox"]:checked + label::after,
+  .checkbox-warning input[type="radio"]:checked + label::after {
+    color: #fff;
+  }
+
+  .checkbox-success input[type="checkbox"]:checked + label::before,
+  .checkbox-success input[type="radio"]:checked + label::before {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+  }
+  .checkbox-success input[type="checkbox"]:checked + label::after,
+  .checkbox-success input[type="radio"]:checked + label::after {
+    color: #fff;
+  }
+
+  .checkbox-primary input[type="checkbox"]:indeterminate + label::before,
+  .checkbox-primary input[type="radio"]:indeterminate + label::before {
+    background-color: #337ab7;
+    border-color: #337ab7;
+  }
+
+  .checkbox-primary input[type="checkbox"]:indeterminate + label::after,
+  .checkbox-primary input[type="radio"]:indeterminate + label::after {
+    background-color: #fff;
+  }
+
+  .checkbox-danger input[type="checkbox"]:indeterminate + label::before,
+  .checkbox-danger input[type="radio"]:indeterminate + label::before {
+    background-color: #d9534f;
+    border-color: #d9534f;
+  }
+
+  .checkbox-danger input[type="checkbox"]:indeterminate + label::after,
+  .checkbox-danger input[type="radio"]:indeterminate + label::after {
+    background-color: #fff;
+  }
+
+  .checkbox-info input[type="checkbox"]:indeterminate + label::before,
+  .checkbox-info input[type="radio"]:indeterminate + label::before {
+    background-color: #5bc0de;
+    border-color: #5bc0de;
+  }
+
+  .checkbox-info input[type="checkbox"]:indeterminate + label::after,
+  .checkbox-info input[type="radio"]:indeterminate + label::after {
+    background-color: #fff;
+  }
+
+  .checkbox-warning input[type="checkbox"]:indeterminate + label::before,
+  .checkbox-warning input[type="radio"]:indeterminate + label::before {
+    background-color: #f0ad4e;
+    border-color: #f0ad4e;
+  }
+
+  .checkbox-warning input[type="checkbox"]:indeterminate + label::after,
+  .checkbox-warning input[type="radio"]:indeterminate + label::after {
+    background-color: #fff;
+  }
+
+  .checkbox-success input[type="checkbox"]:indeterminate + label::before,
+  .checkbox-success input[type="radio"]:indeterminate + label::before {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+  }
+
+  .checkbox-success input[type="checkbox"]:indeterminate + label::after,
+  .checkbox-success input[type="radio"]:indeterminate + label::after {
+    background-color: #fff;
+  }
+
+  .radio {
+    padding-left: 20px;
+  }
+  .radio label {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    padding-left: 5px;
+  }
+  .radio label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    border-radius: 50%;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out;
+  }
+  .radio label::after {
+    display: inline-block;
+    position: absolute;
+    content: " ";
+    width: 11px;
+    height: 11px;
+    left: 3px;
+    top: 3px;
+    margin-left: -20px;
+    border-radius: 50%;
+    background-color: #555555;
+    -webkit-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+    -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+  }
+  .radio input[type="radio"] {
+    opacity: 0;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .radio input[type="radio"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+  }
+  .radio input[type="radio"]:checked + label::after {
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  .radio input[type="radio"]:disabled {
+    cursor: not-allowed;
+  }
+  .radio input[type="radio"]:disabled + label {
+    opacity: 0.65;
+  }
+  .radio input[type="radio"]:disabled + label::before {
+    cursor: not-allowed;
+  }
+  .radio.radio-inline {
+    margin-top: 0;
+  }
+
+  .radio-primary input[type="radio"] + label::after {
+    background-color: #337ab7;
+  }
+  .radio-primary input[type="radio"]:checked + label::before {
+    border-color: #337ab7;
+  }
+  .radio-primary input[type="radio"]:checked + label::after {
+    background-color: #337ab7;
+  }
+
+  .radio-danger input[type="radio"] + label::after {
+    background-color: #d9534f;
+  }
+  .radio-danger input[type="radio"]:checked + label::before {
+    border-color: #d9534f;
+  }
+  .radio-danger input[type="radio"]:checked + label::after {
+    background-color: #d9534f;
+  }
+
+  .radio-info input[type="radio"] + label::after {
+    background-color: #5bc0de;
+  }
+  .radio-info input[type="radio"]:checked + label::before {
+    border-color: #5bc0de;
+  }
+  .radio-info input[type="radio"]:checked + label::after {
+    background-color: #5bc0de;
+  }
+
+  .radio-warning input[type="radio"] + label::after {
+    background-color: #f0ad4e;
+  }
+  .radio-warning input[type="radio"]:checked + label::before {
+    border-color: #f0ad4e;
+  }
+  .radio-warning input[type="radio"]:checked + label::after {
+    background-color: #f0ad4e;
+  }
+
+  .radio-success input[type="radio"] + label::after {
+    background-color: #5cb85c;
+  }
+  .radio-success input[type="radio"]:checked + label::before {
+    border-color: #5cb85c;
+  }
+  .radio-success input[type="radio"]:checked + label::after {
+    background-color: #5cb85c;
+  }
+
+  input[type="checkbox"].styled:checked + label:after,
+  input[type="radio"].styled:checked + label:after {
+    font-family: 'FontAwesome';
+    content: "\f00c";
+  }
+  input[type="checkbox"] .styled:checked + label::before,
+  input[type="radio"] .styled:checked + label::before {
+    color: #fff;
+  }
+  input[type="checkbox"] .styled:checked + label::after,
+  input[type="radio"] .styled:checked + label::after {
+    color: #fff;
+  }
+
+  .accordion-toggle:after {
+    font-family: 'FontAwesome';
+    content: "\f078";    
+    float: right;
+  }
+  .accordion-opened .accordion-toggle:after {    
+    content: "\f054";    
+  }
+  .accordion-toggle {
+    color : #000;
+    font-weight: normal;
+  }
+  .badge {
+    background: orange;
+  }
+
+</style>
+
+
+
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style = "font-family: 'Raleway', sans-serif;"> <i class="fa fa-medkit" aria-hidden="true"></i>
+         Care Portal
+       </a>
+     </div>
+   </div>
+ </nav>
+ <ul class="timeline" id="timeline">
+  <li class="li complete" style="margin-top: 38px;"><i class="fa fa-arrow-left fa-6" aria-hidden="true"></i></li>
+  <li class="li" id = "hid" style="display: none;">
+    <div class="timestamp">
+      <span class="date">01/11/2017<span>
+      </span></span></div>
+      <div id = "first-tl" class="status"> 
+
+      </div>
+    </li>
+    <li class="li">
+      <div class="timestamp">
+        <span class="date">02/15/2017<span>
+        </span></span></div>
+        <div class="status"> 
+
+        </div>
+      </li>
+      <li class="li">
+        <div class="timestamp">
+          <span class="date">03/03/2017<span>
+          </span></span></div>
+          <div class="status">
+          </div>
+        </li>
+        <li class="li">
+          <div class="timestamp">
+            <span class="date">04/15/2017<span>
+            </span></span></div>
+            <div class="status">
+            </div>
+          </li>
+          <li class="li complete" id = "last">
+            <div class="timestamp">
+              <span class="date">05/02/2017<span>
+              </span></span></div>
+              <div class="status" id = "last-tl">
+              </div>
+            </li>
+            <li class="li complete disabled" style="margin-top: 38px;"><i class="fa fa-arrow-right fa-6" aria-hidden="true"></i></li>
+          </ul>
+          <br/>
+          <div class="container">
+            <div class="row">
+
+              <!-- Vertical Navbar -->
+              <div class="col-sm-3 fixmenu" style="z-index: 0">
+                <div class="sidebar-nav">
+                  <div class="navbar navbar-default" role="navigation">
+                    <div class="navbar-header">
+                      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                      </button>
+                      <span class="visible-xs navbar-brand">Sidebar menu</span>
+                    </div>
+                    <div class="navbar-collapse collapse sidebar-navbar-collapse">
+                      <ul class="nav navbar-nav">
+                        <li class="active"><a href="#" id = "summary">Summary</a></li>
+                        <li><a href="#" id = "diagnosis">Diagnosis</a></li>
+                        <li><a href="#" id = "medication">Medications</a></li>
+                        <li><a href="#" id = "results">Lab Results</a></li>
+                        <li><a href="#" id = "next">Next Steps <span class="badge">3</i></span></a></li>
+
+                      </ul>
+                    </div><!--/.nav-collapse -->
+                  </div>
+                </div>
+              </div>
+              <div id = "content-area" style="margin-left: 26%; width:100%">
+                <div class="col-sm-9 content" id = "summary-cont" style="background: #fff;  min-height: 300px; border-radius:4px;border-color: #eee; padding: 30px; display:bock;">
+                  <div class="row date-app" style="text-align: center;">
+                    <h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>
+                  </div>
+
+                  <hr/>
+
+                  <div class="row">
+                    <h5><i class="fa fa-sticky-note-o" aria-hidden="true"></i> Purpose of Visit</h5>
+                    <blockquote><p>Symptoms: fatique, dizziness</p></blockquote>
+                  </div>
+
+                  <div class="row">
+                    <h5><i class="fa fa-user-md" aria-hidden="true"></i> Doctor</h5>
+                    <blockquote>
+                      <p>John Smith</p>
+                      <div style="padding-left: 30px">Call: (919) 260-8048<br/><a>Send message</a></div>
+                    </blockquote>
+                  </div>
+
+                  <div class="row">
+                    <h5><i class="fa fa-comment-o" aria-hidden="true"></i> Doctor's Notes </h5>
+                    <blockquote>
+                      <p>Your symptoms are consistent with anemia. Anemia is a common condition caused by a lower than normal amount of red blood cells. We will run tests for underlying conditions, but considering you have no other symptoms this is likely caused by iron deficiency. There are some strategies you may consider to help improve your red blood cell count. These include:</p>
+                      <ul>
+                        <li>Eat foods high in iron, including dark green leafy vegetables.</li>
+                        <li>Take a over-the-counter iron supplement</li>
+                        <li>Take a B-12 supplement</li>
+                      </ul>
+                      <p>These changes should improve your red blood cell count, which we will test an your next appointment.</p>
+                      <p>Please don't hestitate to message me if you have any questions.</p>
+                    </blockquote>
+                  </div>
+
+                  <div class="row">
+                    <h5><i class="fa fa-comment-o" aria-hidden="true"></i> My Notes </h5>
+                    <textarea style="width:100%; height:100px" value="-Remember to not eat grapefruit.\n-Something else">- Anemia means I have a lower amount of red blood cells than usual. &#13;&#10;- It is treatable! I need to start taking supplements and eat healthier. &#13;&#10;- It might lead to fainting, so try to stay hydrated and avoid standing for long periods of time.&#13;&#10;&#13;&#10; Next time, remember to ask about supplements.</textarea>
+                  </div>
+
+                  <div class="row">
+                    <h5><i class="fa fa-question-circle-o" aria-hidden="true"></i> My Questions</h5>
+                    <p><b> Is it okay for me to drink?</b> 
+                      <i style="color:green" class="fa fa-check-circle" data-toggle="tooltip" title="Doctor confirmed!"></i> <br/>
+                      <i>Not too much - heavy drinking may influence red blood cell production.</i> </p>
+
+                      <p><b> Can I still exercise?</b> 
+                        <i style="color:green" class="fa fa-check-circle" data-toggle="tooltip" title="Doctor confirmed!"></i> <br/>
+                        <i>I may get tired easier because of anemia, but as long as I stay aware of my limits I should continue to exercise.</i> </p>
+
+                      </div>
+
+                    </div>
+
+                    <div class="col-sm-9 content" id = "diagnosis-cont" style="background: #fff;  min-height: 300px; border-radius:4px;border-color: #eee; padding: 30px;">
+                      <div class="row date-app" style="text-align: center;">
+                        <h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>
+                      </div>
+                      <hr/>
+                      <div class="row">
+                       <h5><i class="fa fa-sticky-note-o" aria-hidden="true"></i> Diagnosis </h5>
+                       <blockquote>
+                        <b>Anemia</b><p>This is a condition marked by a deficiency of red blood cells or of hemoglobin in the blood, resulting in pallor and weariness.</p>
+                      </blockquote>
+                    </div>
+                    <div class="row">
+                     <h5><i class="fa fa-question-circle-o" aria-hidden="true"></i> FAQ</h5>
+                     <p><b> What are the symptoms of Anemia?</b><br/>
+                       <i>Easy fatigue and loss of energy. Unusually rapid heart beat, particularly with exercise. Shortness of breath and headache, particularly with exercise. Difficulty concentrating and Dizziness</i> </p>
+                       <p><b> What is the cause of Anemia? </b><br/>
+                         <i>Deficiency of iron can cause Anemia. It can also be caused by deficiency of vitamin B12. </i> </p>
+
+                         <p><b> What is the normal level of iron in your blood?</b><br/>
+                           <i>The normal hemoglobin range is generally defined as 13.5 to 17.5 grams (g) of hemoglobin per deciliter (dL) of blood for men and 12.0 to 15.5 g/dL for women. The normal ranges for children vary depending on the child's age and sex. </i></p>
+                         </div>
+                         <hr/>
+                         <div class="row">
+                           <a href="https://counseling.dasa.ncsu.edu/">Support Group And Counseling</a>
+                         </div>
+                         <hr/>
+                         <div class="row">
+                           <a href="https://en.wikipedia.org/wiki/Anemia">More Information</a>
+                         </div>
+                         <hr/>
+                       </div>
+
+                       <div class="col-sm-9 content" id = "results-cont" style="background: #fff;  min-height: 300px; border-radius:4px;border-color: #eee; padding: 30px;">
+                        <div class="row date-app" style="text-align: center;">
+                         <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+                       </div>
+                       <hr/>
+                       <div class="row">
+                        <h5><i class="fa fa-sticky-note-o" aria-hidden="true"></i> Doctor's Summary </h5>
+                        <blockquote>
+                          <p>Consistent with your sympoms, these labs indicate that you have Anemia. At your next visit we will try to determine the cause.</p>
+                          <p><i class="fa fa-check-circle" style="color: green"></i> All labs have been reviewed by Dr. Smith.</p>
+                        </blockquote>
+                      </div>
+                      <div class="row">
+                       <h5><i class="fa fa-file-o" aria-hidden="true"></i> Lab Results </h5>
+
+                       <div class = "lab">
+                        <div class="row vertical-align">
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">
+                            <h5><a data-toggle="modal" data-target="#rbccountModal">RBC Count</a> &nbsp;
+                            <a href="#"><i style="color: #444444" class="graph fa fa-line-chart" aria-hidden="true"></i></a></h5>
+                          </div>
+                          <div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">
+                            <img src = "./images/rbccount.png" />
+                            <!-- Learn more modal -->
+                            <div class="modal fade" id="rbccountModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title" style="display: inline-block;">RBC Count</h4>
+                                    <a type="button" class="close" data-dismiss="modal" style="float:right">&times;</a>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>An RBC count is a blood test that measures how many red blood cells (RBCs) you have.</p>
+                                    <p>RBCs contain hemoglobin, which carries oxygen. How much oxygen your body tissues get depends on how many RBCs you have and how well they work.</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    <div class = "lab">
+                      <div class="row vertical-align">
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">
+                            <h5><a data-toggle="modal" data-target="#hemoglobinModal">Hemoglobin</a> &nbsp;
+                            <a href="#"><i style="color: #444444" class="graph fa fa-line-chart" aria-hidden="true"></i></a></h5>
+                          </div>
+                          <div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">
+                            <img src = "./images/hemoglobin.png" />
+                            <!-- Learn more modal -->
+                            <div class="modal fade" id="hemoglobinModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title" style="display: inline-block;">Hemoglobin</h4>
+                                    <a type="button" class="close" data-dismiss="modal" style="float:right">&times;</a>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>Hemoglobin (Hb or Hgb) is a protein in red blood cells that carries oxygen throughout the body.</p>
+                                    <p>In many cases, a low hemoglobin count is only slightly lower than normal and doesn't affect how you feel. If it gets more severe and causes symptoms, your low hemoglobin count may indicate you have anemia.</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    <div class = "lab">
+                      <div class="row vertical-align">
+                          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">
+                            <h5><a data-toggle="modal" data-target="#hematocritModal">Hematocrit</a> &nbsp;
+                            <a href="#"><i style="color: #444444" class="graph fa fa-line-chart" aria-hidden="true"></i></a></h5>
+                          </div>
+                          <div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">
+                            <img src = "./images/hematocrit.png" />
+                            <!-- Learn more modal -->
+                            <div class="modal fade" id="hematocritModal" role="dialog">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h4 class="modal-title" style="display: inline-block;">Hematocrit</h4>
+                                    <a type="button" class="close" data-dismiss="modal" style="float:right">&times;</a>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>Your hematocrit is the volume of red blood cells in your body. A hematocrit test measures the ratio of RBCs in your blood.</p>
+                                    <p>A low hematocrit means the percentage of red blood cells is below the lower limits of normal.</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="col-sm-9 content" id = "next-cont" style="background: #fff;  min-height: 300px; border-radius:4px;border-color: #eee; padding: 30px;">
+                    <div class="row date-app" style="text-align: center;">
+                     <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+                   </div>
+                   <hr/>
+                   <!-- new code -->
+                   <div id = "content-area-1" class="pagination-centered">
+                    <div class="panel-group">
+
+                      <div class="panel panel-default">
+
+                        <div class="panel-heading">
+                          <h5 class="panel-title">
+                            <div class="checkbox checkbox-success">
+                            <input id="appointment" class="styled" type="checkbox">
+                            <label for="appointment"></label>
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area-1" href="#schedule_an_apointment">Schedule an Appointment</a>
+                            </div>
+                          </h5>
+                        </div>
+
+                        <div id="schedule_an_apointment" class="panel-collapse collapse">
+                          <div class="panel-body">
+                            <p>Please schedule an appointment for one month from this appointment. Contact information is available below.</p>
+                            
+                            <p><b>Phone</b>: +1(919) 123-4567</p>
+                            <p><b>Email</b>: scheduling@mydoctor.com</p>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h5 class="panel-title">
+                            <div class="checkbox checkbox-success">
+                            <input id="medicine-pick" class="styled" type="checkbox">
+                            <label for="medicine-pick"></label>
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area-1" href="#pickup_medicine">Pickup Medicine</a>
+                            </div>
+                          </h5>
+                        </div>
+
+                        <div id="pickup_medicine" class="panel-collapse collapse">
+                          <div class="panel-body">
+                            <p>Your medications have been called in to your provided pharmacy, Rite Aid on Wade Avenue. Store information is available at the link below.</p>
+                            <a>Rite Aid - Wade Avenue</a>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h5 class="panel-title">
+                           <div class="checkbox checkbox-success">
+                        <input id="read-lab" class="styled" type="checkbox">
+                        <label for="read-lab">
+                            
+                        </label>
+                         <a class="accordion-toggle" data-toggle="collapse" data-parent="#content-area-1" href="#read_lab_results">Read Lab Results</a>
+
+                    </div>
+
+                        </h5>
+                      </div>
+                      <div id="read_lab_results" class="panel-collapse collapse">
+                        <div class="panel-body">
+                          <p>Please read the lab results and doctor notes, which can be found in the Lab Results tab. If you have any questions, please contact your doctor with the contact information provided below.</p>
+
+                          <div><b>John Smith</b></div>
+                          <div style="padding-left: 30px">Phone: (919) 260-8048<br/><a>Send message</a></div>
+
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+                <!-- new code -->
+              </div>
+              <div class="col-sm-9 content" id = "medication-cont" style="background: #fff;  min-height: 300px; border-radius:4px;border-color: #eee; padding: 30px;">
+                <div class="row date-app" style="text-align: center;">
+                 <h4> <i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017 </h4>
+               </div>
+               <hr/>
+               <div class="row">
+                <table class="table">
+                 <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Medicine Name</th>
+                    <th>Make of medicine</th>
+                    <th>Type</th>
+                    <th>Frequency</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>benzonatate</td>
+                    <td>pfizer</td>
+                    <td>OTC</td>
+                    <td>3 times in a day</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>diphenhydramine</td>
+                    <td>amgen</td>
+                    <td>Rx/ OTC</td>
+                    <td>Lunch time</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Hydromet</td>
+                    <td>roche</td>
+                    <td>OTC</td>
+                    <td>Before sleep</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Tylenol-Codeine</td>
+                    <td>pfizer</td>
+                    <td>Rx/ OTC</td>
+                    <td>2 times in a day</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div id = "nextStepsInfo" class = "col-sm-9 content" style="background: rgb(255, 255, 255); min-height: 200px; border-radius: 4px; border-color: rgb(238, 238, 238); padding: 30px; display: none; margin-left:24.5%; width:77%; "> 
+        <div id="step1" style="display:none">
+          <span>Schedule next appointment</span>
+          <br><span>Name: James Anderson</span>
+          <br><span>Website: www.james.com</span>
+          <br><span>Phone Number: +1(919)123456</span>
+          <br><span>Email Address:james@james.com</span>
+        </div>
+        <hr>
+        <div id="step2" style="display:none">
+          <span>Pickup medicine</span>
+          <br><span>Name: Merrisa Vandy</span>
+          <br><span>Website: www.merrisa.com</span>
+          <br><span>Phone Number: +1(919)321456</span>
+          <br><span>Email Address:merrisa@merrisa.com</span>
+        </div>
+        <hr>
+        <div id="step3" style="display:none">
+          <span>Read lab result</span>
+          <br><s<br>Name: Tyler Ron<Rspan>
+          <br><span>Website: www.tyler.com</span>
+          <br><span>Phone Number: +1(919)345456</span>
+          <br><span>Email Address:tyler@tyler.com</span>
+        </div>
+        <hr>
+        <div id="step4" style="display:none">
+          <span>Ask questions</span>
+          <br><span>Name: Roy Swadh</span>
+          <br><span>Website: www.roy.com</span>
+          <br><span>Phone Number: +1(919)432456</span>
+          <br><span>Email Address:roy@roy.com</span>
+        </div>
+      </div>
+      <div class="modal fade" id="graph" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">History - Result</h4>
+            </div>
+            <div class="modal-body">
+              <img src="http://www.falconprogrammer.com/wp-content/uploads/2013/12/LineGraph.png"/>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $("#summary").click(function() {
+       $('#diagnosis-cont').hide();
+       $("#diagnosis").parent().removeClass("active");
+       $('#results-cont').hide();
+       $("#results").parent().removeClass("active");
+       $('#next-cont').hide();
+       $("#next").parent().removeClass("active");
+       $('#medication-cont').hide();
+       $("#medication").parent().removeClass("active");
+       $("#summary").parent().addClass("active");
+       $('#summary-cont').fadeIn("slow");
+
+     });
+
+      $("#results").click(function() {
+       $('#summary-cont').hide();
+       $("#summary").parent().removeClass("active");
+       $('#diagnosis-cont').hide();
+       $("#diagnosis").parent().removeClass("active");
+       $('#next-cont').hide();
+       $("#next").parent().removeClass("active");
+       $('#medication-cont').hide();
+       if(!$('#read-lab').is(':checked')) {
+         $('#read-lab').prop('checked', true);
+         $('#read-lab').trigger('change');
+      }
+       $("#medication").parent().removeClass("active");
+       $("#results").parent().addClass("active");
+       $('#results-cont').fadeIn("slow");
+     });
+      $("#next").click(function() {
+       $('#summary-cont').hide();
+       $("#summary").parent().removeClass("active");
+       $('#diagnosis-cont').hide();
+       $("#diagnosis").parent().removeClass("active");
+       $('#results-cont').hide();
+       $("#results").parent().removeClass("active");
+       $('#medication-cont').hide();
+       $("#medication").parent().removeClass("active");
+       $("#next").parent().addClass("active");
+       $('#next-cont').fadeIn("slow");
+
+     });
+      $("#medication").click(function() {
+       $('#summary-cont').hide();
+       $("#summary").parent().removeClass("active");
+       $('#diagnosis-cont').hide();
+       $("#diagnosis").parent().removeClass("active");
+       $('#results-cont').hide();
+       $("#results").parent().removeClass("active");
+       $('#next-cont').hide();
+       $("#next").parent().removeClass("active");
+       $("#medication").parent().addClass("active");
+       $('#medication-cont').fadeIn("slow");
+
+     });
+
+      $("#diagnosis").click(function() {
+       $('#next-cont').hide();
+       $("#next").parent().removeClass("active");
+       $('#summary-cont').hide();
+       $("#summary").parent().removeClass("active");
+       $('#results-cont').hide();
+       $("#results").parent().removeClass("active");
+       $('#medication-cont').hide();
+       $("#medication").parent().removeClass("active");
+       $("#diagnosis").parent().addClass("active");
+       $('#diagnosis-cont').fadeIn("slow");
+
+     });
+
+      $('.fa-arrow-left').click(function() {
+        $('#last').hide();
+        $('#hid').show();
+        $('.fa-arrow-left').parent().addClass('disabled');
+        $('.fa-arrow-right').parent().removeClass('disabled');
+      });
+
+      $('.fa-arrow-right').click(function() {
+        $('.fa-arrow-left').parent().removeClass('disabled');
+        $('#hid').hide();
+        $('#last').show();
+        $('.fa-arrow-right').parent().addClass('disabled');
+      });
+
+      $('#first-tl').click(function() {
+        $('#content-area').fadeOut();
+        $('#content-area').fadeIn();
+        $('#diagnosis-cont').hide();
+        $("#diagnosis").parent().removeClass("active");
+        $('#results-cont').hide();
+        $("#results").parent().removeClass("active");
+        $('#medication-cont').hide();
+        $("#medication").parent().removeClass("active");
+        $('#next-cont').hide();
+        $("#next").parent().removeClass("active");
+        $("#summary").parent().addClass("active");
+        $('#summary-cont').fadeIn("slow");
+        $('.date-app').html('<h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 01/11/2017</h4>');
+        $('#last-tl').parent().removeClass('complete');
+        $('#first-tl').parent().addClass('complete');
+      });
+
+      $('#last-tl').click(function() {
+        $('#content-area').fadeOut();
+        $('#content-area').fadeIn();
+        $('#results-cont').hide();
+        $("#results").parent().removeClass("active");
+        $('#diagnosis-cont').hide();
+        $("#diagnosis").parent().removeClass("active");
+        $('#medication-cont').hide();
+        $("#medication").parent().removeClass("active");
+        $('#next-cont').hide();
+        $("#next").parent().removeClass("active");
+        $("#summary").parent().addClass("active");
+        $('#summary-cont').fadeIn("slow");
+        $('.date-app').html('<h4><i class="fa fa-calendar-o" aria-hidden="true"></i> Appointment Date 05/02/2017</h4>');
+        $('#last-tl').parent().addClass('complete');
+        $('#first-tl').parent().removeClass('complete');
+      });
+
+      $('.graph').click(function() {
+        $('#graph').modal('show');
+      });
+
+
+      var stepsCompleted = 0;
+
+      $("#check1").change(function() {
+        if ($(this).is(':checked')) {
+         $("#nextStepsInfo").css("display", "block");
+         $("#step1").css("display", "block");
+         stepsCompleted=stepsCompleted+1;
+
+       }else{
+         $("#step1").css("display", "none");
+         stepsCompleted=stepsCompleted-1;
+         $("#done").css("display", "none");
+       }
+       if(stepsCompleted==0){
+         $("#nextStepsInfo").css("display", "none");
+
+       }
+       else if(stepsCompleted==4){
+        $("#done").css("display", "block");
+      }
+    });
+
+      $("#check2").change(function() {
+        if ($(this).is(':checked')) {
+         $("#step2").css("display", "block");
+         stepsCompleted=stepsCompleted+1;
+         $("#nextStepsInfo").css("display", "block");
+       }else{
+         $("#step2").css("display", "none");
+         stepsCompleted=stepsCompleted-1;
+         $("#done").css("display", "none");
+       }
+       if(stepsCompleted==0){
+         $("#nextStepsInfo").css("display", "none");
+
+       }
+       else if(stepsCompleted==4){
+        $("#done").css("display", "block");
+      }
+    });
+
+      $("#check3").change(function() {
+        if ($(this).is(':checked')) {
+         $("#step3").css("display", "block");
+         stepsCompleted=stepsCompleted+1;
+         $("#nextStepsInfo").css("display", "block");
+       }else{
+         $("#step3").css("display", "none");
+         stepsCompleted=stepsCompleted-1;
+         $("#done").css("display", "none");
+       }
+       if(stepsCompleted==0){
+         $("#nextStepsInfo").css("display", "none");
+
+       }
+       else if(stepsCompleted==4){
+        $("#done").css("display", "block");
+      }
+    });
+
+      $("#check4").change(function() {
+        if ($(this).is(':checked')) {
+         $("#step4").css("display", "block");
+         stepsCompleted=stepsCompleted+1;
+         $("#nextStepsInfo").css("display", "block");
+       }else{
+         $("#step4").css("display", "none");
+         stepsCompleted=stepsCompleted-1;
+         $("#done").css("display", "none");
+       }
+       if(stepsCompleted==0){
+         $("#nextStepsInfo").css("display", "none");
+
+       }
+       else if(stepsCompleted==4){
+        $("#done").css("display", "block");
+      }
+    });
+
+      $("input[type='checkbox']").change(function() {
+       data = $(".badge").html();
+       if(!isNaN(data)) { 
+          if(this.checked) {
+            $(".badge").html(parseInt($(".badge").html()) - 1);
+            if(parseInt(data) === 1) {
+              $(".badge").html('<i class="fa fa-check" aria-hidden="true"></i>');
+              $(".badge").css('background','#5cb85c');
+            }
+          } else {
+            $(".badge").html(parseInt($(".badge").html()) + 1);
+          }
+        } else {
+          if (!this.checked) {
+            $(".badge").html("1");
+            $(".badge").css('background','orange');
+          }
+        }
+
+    });
+
+  </script>
+</body>
+</html>
